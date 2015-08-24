@@ -52,7 +52,8 @@ CONFIG_PNO_SUPPORT = n
 CONFIG_PNO_SET_DEBUG = n
 CONFIG_AP_WOWLAN = n
 ###################### Platform Related #######################
-CONFIG_PLATFORM_I386_PC = y
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_COLIBRI_VFXX = y
 ###############################################################
 
 CONFIG_DRVEXT_MODULE = n
@@ -85,7 +86,7 @@ _HAL_INTFS_FILES :=	hal/hal_intf.o \
 			hal/hal_btcoex.o \
 			hal/hal_usb.o \
 			hal/hal_usb_led.o
-			
+
 _OUTSRC_FILES := hal/odm_debug.o	\
 		hal/odm_AntDiv.o\
 		hal/odm_interface.o\
@@ -100,7 +101,7 @@ _OUTSRC_FILES := hal/odm_debug.o	\
 		hal/odm_DynamicTxPower.o\
 		hal/odm_CfoTracking.o\
 		hal/odm_NoiseMonitor.o
-		
+
 EXTRA_CFLAGS += -I$(src)/platform
 _PLATFORM_FILES := platform/platform_ops.o
 
@@ -120,7 +121,6 @@ _OUTSRC_FILES += hal/HalBtc8188c2Ant.o \
 				hal/HalBtc8821a2Ant.o \
 				hal/HalBtc8821aCsr2Ant.o
 endif
-		
 
 ########### HAL_RTL8723B #################################
 
@@ -141,7 +141,6 @@ _HAL_INTFS_FILES +=	hal/$(RTL871X)_hal_init.o \
 			hal/$(RTL871X)_dm.o \
 			hal/$(RTL871X)_rxdesc.o \
 			hal/$(RTL871X)_cmd.o \
-			
 
 _HAL_INTFS_FILES +=	\
 			hal/usb_halinit.o \
@@ -165,8 +164,8 @@ _OUTSRC_FILES += hal/HalHWImg8723B_BB.o\
 			hal/odm_RTL8723B.o
 
 
-########### AUTO_CFG  #################################	
-		
+########### AUTO_CFG  #################################
+
 ifeq ($(CONFIG_AUTOCFG_CP), y)
 $(shell cp $(TopDIR)/autoconf_$(RTL871X)_usb_linux.h $(TopDIR)/include/autoconf.h)
 endif
@@ -295,6 +294,15 @@ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
 INSTALL_PREFIX :=
 endif
 
+ifeq ($(CONFIG_PLATFORM_ARM_COLIBRI_VFXX), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211
+EXTRA_CFLAGS += -DRTW_USE_CFG80211_STA_EVENT # only enable when kernel >= 3.2
+EXTRA_CFLAGS += -DCONFIG_P2P_IPS
+ARCH := arm
+CROSS_COMPILE := /usr/local/oecore-x86_64/sysroots/x86_64-angstromsdk-linux/usr/bin/arm-angstrom-linux-gnueabi/arm-angstrom-linux-gnueabi-
+KSRC ?= $(HOME)/linux-toradex/
+endif
 
 ifneq ($(USER_MODULE_NAME),)
 MODULE_NAME := $(USER_MODULE_NAME)
